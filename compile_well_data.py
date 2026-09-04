@@ -4,8 +4,8 @@ Script para compilar dados de poços a partir de arquivos Excel.
 
 Extrai informações de células específicas e gera um arquivo de saída
 com a estrutura:
-  Well | MD | Size | Volume
-       |    | mm   | %
+  Well | MD | Amostra | Size Class | Size | Volume
+       |    |         |            | mm   | %
 """
 
 import os
@@ -20,8 +20,8 @@ try:
 except ImportError:
     HAS_XLRD = False
 
-# Tabela de classificação de tamanho de partículas (escala de Wentworth)
-SIZE_CLASSES = [
+# Valores fixos de Size e classificação (não extraído do Excel)
+FIXED_SIZE_VALUES = [
     (2.0, "Granule"),
     (1.682, "Very Coarse Sand"),
     (0.841, "Coarse Sand"),
@@ -32,27 +32,7 @@ SIZE_CLASSES = [
     (0.026, "Medium Silt"),
     (0.013, "Fine Silt"),
     (0.007, "Very Fine Silt"),
-    (0.0, "Clay")
 ]
-
-def classify_size(size_value):
-    """
-    Classifica o tamanho da partícula baseado na escala de Wentworth.
-
-    Args:
-        size_value: Valor do tamanho em mm
-
-    Returns:
-        str: Classificação do tamanho (ex: "Medium Sand")
-    """
-    if size_value is None:
-        return ""
-
-    for threshold, class_name in SIZE_CLASSES:
-        if size_value >= threshold:
-            return class_name
-
-    return "Clay"
 
 
 def extract_well_data(file_path):
@@ -83,25 +63,12 @@ def extract_well_data(file_path):
             amostra = ws.cell_value(2, 14)  # O3
             md = ws.cell_value(3, 14)    # O4
 
-            # Extrai Size (A75:A85) e Volume (F75:F85)
-            size_values = []
+            # Extrai Volume (F75:F85)
             volume_values = []
             for row_idx in range(74, 85):  # Linhas 75-85 (0-indexed: 74-84)
                 try:
-                    size_val = ws.cell_value(row_idx, 0)  # Coluna A
-                    if size_val != '':  # Verifica se não é string vazia
-                        size_values.append(float(size_val) if size_val else None)
-                    else:
-                        size_values.append(None)
-                except (ValueError, TypeError):
-                    size_values.append(None)
-
-                try:
                     vol_val = ws.cell_value(row_idx, 5)  # Coluna F
-                    if vol_val != '':  # Verifica se não é string vazia
-                        volume_values.append(float(vol_val) if vol_val else None)
-                    else:
-                        volume_values.append(None)
+                    volume_values.append(float(vol_val) if vol_val else None)
                 except (ValueError, TypeError):
                     volume_values.append(None)
 
@@ -115,32 +82,27 @@ def extract_well_data(file_path):
             amostra = ws['O3'].value
             md = ws['O4'].value
 
-            # Extrai Size (A75:A85) e Volume (F75:F85)
-            size_values = []
+            # Extrai Volume (F75:F85)
             volume_values = []
             for row in range(75, 86):  # Linhas 75-85
-                size_val = ws[f'A{row}'].value
-                size_values.append(float(size_val) if size_val else None)
-
                 vol_val = ws[f'F{row}'].value
                 volume_values.append(float(vol_val) if vol_val else None)
 
         # Debug: Mostra o que foi extraído
         print(f"    Well: {well}, MD: {md}, Amostra: {amostra}")
-        print(f"    Size values ({len(size_values)}): {size_values[:3]}...")
         print(f"    Volume values ({len(volume_values)}): {volume_values[:3]}...")
 
-        # Cria lista de dados com uma linha para cada amostra
+        # Cria lista de dados com uma linha para cada Size/Volume
         data_list = []
-        for i in range(max(len(size_values), len(volume_values))):
-            size_val = size_values[i] if i < len(size_values) else None
+        for i, (size_val, size_class) in enumerate(FIXED_SIZE_VALUES):
+            volume_val = volume_values[i] if i < len(volume_values) else None
             data_list.append({
                 'Well': well,
                 'MD': md,
                 'Amostra': amostra,
-                'Size Class': classify_size(size_val),
+                'Size Class': size_class,
                 'Size': size_val,
-                'Volume': volume_values[i] if i < len(volume_values) else None
+                'Volume': volume_val
             })
 
         return data_list
