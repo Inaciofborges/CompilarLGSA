@@ -22,8 +22,8 @@ Os arquivos Excel devem conter os dados nas seguintes células:
 | Well | A3 |
 | MD (Measured Depth) | O4 |
 | Amostra | O3 |
-| Size | A75 a A85 (será calculada a média) |
-| Volume | F75 a F85 (será calculada a média) |
+| Size | A75 a A85 (10 valores individuais) |
+| Volume | F75 a F85 (10 valores individuais) |
 
 ## Uso
 
@@ -53,11 +53,22 @@ O arquivo de saída será um CSV com o seguinte formato:
 
 ```
 Well|MD (m)|Amostra|Size (mm)|Volume (%)
-WELL-001|1500|Sample-A1|2.45|65.30
-WELL-002|1650|Sample-B1|2.38|68.75
+|m||mm|%
+WELL-001|1500|Sample-A1|2.10|65.50
+WELL-001|1500|Sample-A1|2.30|67.20
+WELL-001|1500|Sample-A1|2.20|66.80
+...
+WELL-001|1500|Sample-A1|2.30|68.00
+WELL-002|1650.5|Sample-B1|2.10|65.50
+...
 ```
 
-As unidades estão indicadas no cabeçalho:
+**Estrutura:**
+- **Linha 1**: Nomes das colunas com unidades (Well | MD (m) | Amostra | Size (mm) | Volume (%))
+- **Linha 2**: Apenas as unidades (| m | | mm | %)
+- **Linhas 3+**: Dados dos poços (cada poço terá 10 linhas de dados)
+
+**Unidades:**
 - **MD**: metros (m)
 - **Size**: milímetros (mm)
 - **Volume**: percentual (%)
@@ -66,18 +77,19 @@ As unidades estão indicadas no cabeçalho:
 
 ✓ Lê múltiplos arquivos Excel (.xlsx, .xls)
 ✓ Extrai dados de células específicas
-✓ Calcula a média dos valores em ranges (Size e Volume)
-✓ Gera arquivo CSV estruturado
+✓ Mantém os 10 valores individuais de cada range (não agrega)
+✓ Gera arquivo CSV com estrutura: coluna de variáveis + linha de unidades
+✓ Cada poço gera 10 linhas de dados no resultado
 ✓ Tratamento de erros robusto
 ✓ Mensagens informativas
 
-## Personalizações
+## Personalização
 
 Se desejar modificar o script para:
-- Alterar as células de extração
-- Usar um método diferente de agregação (median, sum, etc.)
+- Alterar as células de extração ou ranges
 - Mudar o formato de saída (Excel, JSON)
-- Adicionar mais campos
+- Adicionar mais colunas ou unidades
+- Mudar o delimitador de arquivo (vírgula, ponto-e-vírgula, etc.)
 
 Edite o arquivo `compile_well_data.py` nas seções indicadas.
 
@@ -89,11 +101,12 @@ Edite o arquivo `compile_well_data.py` nas seções indicadas.
 
 **Erro: "Erro ao processar [arquivo]"**
 - Verifique se o arquivo não está corrompido
-- Confirme que as células especificadas existem
-- Verifique se os dados são numéricos nos ranges (Size e Volume)
+- Confirme que as células especificadas existem (A3, O3, O4)
+- Confirme que os ranges A75:A85 e F75:F85 existem e contêm dados
 
 ## Notas
 
-- Os ranges de Size (A75:A85) e Volume (F75:F85) terão sua **média** calculada
-- Valores vazios ou não-numéricos serão ignorados na média
-- Se não houver valores válidos, a célula no resultado ficará vazia
+- Os 10 valores de Size (A75:A85) e Volume (F75:F85) são mantidos **individualmente**
+- Cada poço gera exatamente **10 linhas** no arquivo de saída
+- Valores vazios ou não-numéricos são deixados em branco na saída
+- A segunda linha sempre contém as unidades, facilitando importação em ferramentas de análise
