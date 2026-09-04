@@ -5,7 +5,8 @@ Este script processa arquivos Excel de poços e compila as informações em um a
 ## Requisitos
 
 - Python 3.7+
-- Biblioteca `openpyxl` para leitura de arquivos Excel
+- Biblioteca `openpyxl` para leitura de arquivos Excel (.xlsx)
+- Biblioteca `xlrd` para leitura de arquivos Excel antigos (.xls)
 
 ## 🚀 Instalação Rápida
 
@@ -36,6 +37,14 @@ Os arquivos Excel devem conter os dados nas seguintes células:
 | MD (Measured Depth) | O4 |
 | Size | A75 a A85 (10 valores individuais) |
 | Volume | F75 a F85 (10 valores individuais) |
+
+## Formatos Suportados
+
+✅ **Arquivos Excel:**
+- `.xlsx` (Excel 2010 e posterior) - via openpyxl
+- `.xls` (Excel 2003 e anterior) - via xlrd
+
+O script detecta automaticamente o formato e usa a biblioteca apropriada.
 
 ## Uso
 

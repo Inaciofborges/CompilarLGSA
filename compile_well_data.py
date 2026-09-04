@@ -14,10 +14,16 @@ from pathlib import Path
 from openpyxl import load_workbook
 import csv
 
+try:
+    import xlrd
+    HAS_XLRD = True
+except ImportError:
+    HAS_XLRD = False
+
 
 def extract_well_data(file_path):
     """
-    Extrai dados de um arquivo Excel.
+    Extrai dados de um arquivo Excel (.xlsx ou .xls).
 
     Args:
         file_path (str): Caminho do arquivo Excel
@@ -26,8 +32,38 @@ def extract_well_data(file_path):
         list: Lista de dicionários com os dados extraídos (um por linha de amostra)
     """
     try:
-        wb = load_workbook(file_path, data_only=True)
-        ws = wb.active
+        file_ext = Path(file_path).suffix.lower()
+
+        # Para arquivos .xls, usa xlrd
+        if file_ext == '.xls':
+            if not HAS_XLRD:
+                print(f"Erro: xlrd não está instalado. Use: pip install xlrd --user", file=sys.stderr)
+                return None
+
+            import xlrd
+            wb = xlrd.open_workbook(file_path)
+            ws = wb.sheet_by_index(0)
+
+            # Função para obter valor de célula em .xls
+            def get_cell_value(row, col):
+                try:
+                    return ws.cell_value(row, col)
+                except:
+                    return None
+
+            well = get_cell_value(2, 0)  # A3 (0-indexed: row 2, col 0)
+            md = get_cell_value(3, 14)   # O4 (0-indexed: row 3, col 14)
+
+        else:
+            # Para arquivos .xlsx, usa openpyxl
+            wb = load_workbook(file_path, data_only=True)
+            ws = wb.active
+
+            def get_cell_value(row_letter, col_letter):
+                return ws[f'{col_letter}{row_letter}'].value
+
+            well = ws['A3'].value
+            md = ws['O4'].value
 
         # Extrai valores das células específicas
         well = ws['A3'].value
@@ -35,26 +71,49 @@ def extract_well_data(file_path):
 
         # Extrai ranges de Size (A75:A85) e Volume (F75:F85)
         size_values = []
-        for row in range(75, 86):  # A75 a A85 (10 linhas)
-            cell_value = ws[f'A{row}'].value
-            if cell_value is not None:
+        volume_values = []
+
+        if file_ext == '.xls':
+            # Para .xls (xlrd): row e col são índices (0-based)
+            for row_idx in range(74, 85):  # Linhas 75-85 (0-indexed: 74-84)
                 try:
-                    size_values.append(float(cell_value))
+                    size_val = ws.cell_value(row_idx, 0)  # Coluna A
+                    if size_val:
+                        size_values.append(float(size_val))
+                    else:
+                        size_values.append(None)
                 except (ValueError, TypeError):
                     size_values.append(None)
-            else:
-                size_values.append(None)
 
-        volume_values = []
-        for row in range(75, 86):  # F75 a F85 (10 linhas)
-            cell_value = ws[f'F{row}'].value
-            if cell_value is not None:
                 try:
-                    volume_values.append(float(cell_value))
+                    vol_val = ws.cell_value(row_idx, 5)  # Coluna F
+                    if vol_val:
+                        volume_values.append(float(vol_val))
+                    else:
+                        volume_values.append(None)
                 except (ValueError, TypeError):
                     volume_values.append(None)
-            else:
-                volume_values.append(None)
+        else:
+            # Para .xlsx (openpyxl)
+            for row in range(75, 86):  # A75 a A85 (10 linhas)
+                cell_value = ws[f'A{row}'].value
+                if cell_value is not None:
+                    try:
+                        size_values.append(float(cell_value))
+                    except (ValueError, TypeError):
+                        size_values.append(None)
+                else:
+                    size_values.append(None)
+
+            for row in range(75, 86):  # F75 a F85 (10 linhas)
+                cell_value = ws[f'F{row}'].value
+                if cell_value is not None:
+                    try:
+                        volume_values.append(float(cell_value))
+                    except (ValueError, TypeError):
+                        volume_values.append(None)
+                else:
+                    volume_values.append(None)
 
         # Cria uma lista de dados com uma linha para cada amostra
         data_list = []
