@@ -32,6 +32,7 @@ FIXED_SIZE_VALUES = [
     (0.026, "Medium Silt"),
     (0.013, "Fine Silt"),
     (0.007, "Very Fine Silt"),
+    (0.003285, "Clay"),
 ]
 
 
