@@ -49,37 +49,39 @@ def extract_well_data(file_path):
             amostra = ws.cell_value(2, 14)  # O3
             md = ws.cell_value(3, 14)    # O4
 
-            # Extrai Size (C35:C71 e K35)
+            # Extrai Size (K35, depois C71:C35 decrescente)
             size_values = []
-            for row_idx in range(34, 71):  # C35:C71 (0-indexed: 34-70)
-                try:
-                    size_val = ws.cell_value(row_idx, 2)  # Coluna C
-                    size_values.append(float(size_val) if size_val else None)
-                except (ValueError, TypeError):
-                    size_values.append(None)
-
-            # Adiciona K35
+            # Adiciona K35 primeiro
             try:
                 k35_val = ws.cell_value(34, 10)  # K35 (coluna 10, row 34)
                 size_values.append(float(k35_val) if k35_val else None)
             except (ValueError, TypeError):
                 size_values.append(None)
 
-            # Extrai Volume (F35:F71 e F85)
-            volume_values = []
-            for row_idx in range(34, 71):  # F35:F71 (0-indexed: 34-70)
+            # Depois C71:C35 em ordem decrescente (0-indexed: 70 até 34)
+            for row_idx in range(70, 33, -1):  # C71:C35 decrescente
                 try:
-                    vol_val = ws.cell_value(row_idx, 5)  # Coluna F
-                    volume_values.append(float(vol_val) if vol_val else None)
+                    size_val = ws.cell_value(row_idx, 2)  # Coluna C
+                    size_values.append(float(size_val) if size_val else None)
                 except (ValueError, TypeError):
-                    volume_values.append(None)
+                    size_values.append(None)
 
-            # Adiciona F85
+            # Extrai Volume (F85, depois F71:F35 decrescente)
+            volume_values = []
+            # Adiciona F85 primeiro
             try:
                 f85_val = ws.cell_value(84, 5)  # F85 (coluna 5, row 84)
                 volume_values.append(float(f85_val) if f85_val else None)
             except (ValueError, TypeError):
                 volume_values.append(None)
+
+            # Depois F71:F35 em ordem decrescente (0-indexed: 70 até 34)
+            for row_idx in range(70, 33, -1):  # F71:F35 decrescente
+                try:
+                    vol_val = ws.cell_value(row_idx, 5)  # Coluna F
+                    volume_values.append(float(vol_val) if vol_val else None)
+                except (ValueError, TypeError):
+                    volume_values.append(None)
 
         else:
             # Lê arquivo .xlsx usando openpyxl
@@ -91,37 +93,39 @@ def extract_well_data(file_path):
             amostra = ws['O3'].value
             md = ws['O4'].value
 
-            # Extrai Size (C35:C71 e K35)
+            # Extrai Size (K35, depois C71:C35 decrescente)
             size_values = []
-            for row in range(35, 72):  # C35:C71
-                try:
-                    size_val = ws[f'C{row}'].value
-                    size_values.append(float(size_val) if size_val else None)
-                except (ValueError, TypeError):
-                    size_values.append(None)
-
-            # Adiciona K35
+            # Adiciona K35 primeiro
             try:
                 k35_val = ws['K35'].value
                 size_values.append(float(k35_val) if k35_val else None)
             except (ValueError, TypeError):
                 size_values.append(None)
 
-            # Extrai Volume (F35:F71 e F85)
-            volume_values = []
-            for row in range(35, 72):  # F35:F71
+            # Depois C71:C35 em ordem decrescente
+            for row in range(71, 34, -1):  # C71:C35 decrescente
                 try:
-                    vol_val = ws[f'F{row}'].value
-                    volume_values.append(float(vol_val) if vol_val else None)
+                    size_val = ws[f'C{row}'].value
+                    size_values.append(float(size_val) if size_val else None)
                 except (ValueError, TypeError):
-                    volume_values.append(None)
+                    size_values.append(None)
 
-            # Adiciona F85
+            # Extrai Volume (F85, depois F71:F35 decrescente)
+            volume_values = []
+            # Adiciona F85 primeiro
             try:
                 f85_val = ws['F85'].value
                 volume_values.append(float(f85_val) if f85_val else None)
             except (ValueError, TypeError):
                 volume_values.append(None)
+
+            # Depois F71:F35 em ordem decrescente
+            for row in range(71, 34, -1):  # F71:F35 decrescente
+                try:
+                    vol_val = ws[f'F{row}'].value
+                    volume_values.append(float(vol_val) if vol_val else None)
+                except (ValueError, TypeError):
+                    volume_values.append(None)
 
         # Debug: Mostra o que foi extraído
         print(f"    Well: {well}, MD: {md}, Amostra: {amostra}")
