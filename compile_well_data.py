@@ -34,8 +34,8 @@ def extract_well_data(file_path):
     try:
         file_ext = Path(file_path).suffix.lower()
 
-        # Para arquivos .xls, usa xlrd
         if file_ext == '.xls':
+            # Lê arquivo .xls usando xlrd
             if not HAS_XLRD:
                 print(f"Erro: xlrd não está instalado. Use: pip install xlrd --user", file=sys.stderr)
                 return None
@@ -44,78 +44,46 @@ def extract_well_data(file_path):
             wb = xlrd.open_workbook(file_path)
             ws = wb.sheet_by_index(0)
 
-            # Função para obter valor de célula em .xls
-            def get_cell_value(row, col):
-                try:
-                    return ws.cell_value(row, col)
-                except:
-                    return None
+            # Extrai Well e MD (xlrd usa 0-indexed)
+            well = ws.cell_value(2, 0)   # A3
+            md = ws.cell_value(3, 14)    # O4
 
-            well = get_cell_value(2, 0)  # A3 (0-indexed: row 2, col 0)
-            md = get_cell_value(3, 14)   # O4 (0-indexed: row 3, col 14)
-
-        else:
-            # Para arquivos .xlsx, usa openpyxl
-            wb = load_workbook(file_path, data_only=True)
-            ws = wb.active
-
-            def get_cell_value(row_letter, col_letter):
-                return ws[f'{col_letter}{row_letter}'].value
-
-            well = ws['A3'].value
-            md = ws['O4'].value
-
-        # Extrai valores das células específicas
-        well = ws['A3'].value
-        md = ws['O4'].value
-
-        # Extrai ranges de Size (A75:A85) e Volume (F75:F85)
-        size_values = []
-        volume_values = []
-
-        if file_ext == '.xls':
-            # Para .xls (xlrd): row e col são índices (0-based)
+            # Extrai Size (A75:A85) e Volume (F75:F85)
+            size_values = []
+            volume_values = []
             for row_idx in range(74, 85):  # Linhas 75-85 (0-indexed: 74-84)
                 try:
                     size_val = ws.cell_value(row_idx, 0)  # Coluna A
-                    if size_val:
-                        size_values.append(float(size_val))
-                    else:
-                        size_values.append(None)
+                    size_values.append(float(size_val) if size_val else None)
                 except (ValueError, TypeError):
                     size_values.append(None)
 
                 try:
                     vol_val = ws.cell_value(row_idx, 5)  # Coluna F
-                    if vol_val:
-                        volume_values.append(float(vol_val))
-                    else:
-                        volume_values.append(None)
+                    volume_values.append(float(vol_val) if vol_val else None)
                 except (ValueError, TypeError):
                     volume_values.append(None)
+
         else:
-            # Para .xlsx (openpyxl)
-            for row in range(75, 86):  # A75 a A85 (10 linhas)
-                cell_value = ws[f'A{row}'].value
-                if cell_value is not None:
-                    try:
-                        size_values.append(float(cell_value))
-                    except (ValueError, TypeError):
-                        size_values.append(None)
-                else:
-                    size_values.append(None)
+            # Lê arquivo .xlsx usando openpyxl
+            wb = load_workbook(file_path, data_only=True)
+            ws = wb.active
 
-            for row in range(75, 86):  # F75 a F85 (10 linhas)
-                cell_value = ws[f'F{row}'].value
-                if cell_value is not None:
-                    try:
-                        volume_values.append(float(cell_value))
-                    except (ValueError, TypeError):
-                        volume_values.append(None)
-                else:
-                    volume_values.append(None)
+            # Extrai Well e MD
+            well = ws['A3'].value
+            md = ws['O4'].value
 
-        # Cria uma lista de dados com uma linha para cada amostra
+            # Extrai Size (A75:A85) e Volume (F75:F85)
+            size_values = []
+            volume_values = []
+            for row in range(75, 86):  # Linhas 75-85
+                size_val = ws[f'A{row}'].value
+                size_values.append(float(size_val) if size_val else None)
+
+                vol_val = ws[f'F{row}'].value
+                volume_values.append(float(vol_val) if vol_val else None)
+
+        # Cria lista de dados com uma linha para cada amostra
         data_list = []
         for i in range(max(len(size_values), len(volume_values))):
             data_list.append({
