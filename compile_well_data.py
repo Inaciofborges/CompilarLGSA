@@ -3,7 +3,9 @@
 Script para compilar dados de poços a partir de arquivos Excel.
 
 Extrai informações de células específicas e gera um arquivo de saída
-com a estrutura: Well | MD (m) | Amostra | Size (mm) | Volume (%)
+com a estrutura:
+  Well | MD | Size | Volume
+       |    | mm   | %
 """
 
 import os
@@ -30,7 +32,6 @@ def extract_well_data(file_path):
         # Extrai valores das células específicas
         well = ws['A3'].value
         md = ws['O4'].value
-        amostra = ws['O3'].value
 
         # Extrai ranges de Size (A75:A85) e Volume (F75:F85)
         size_values = []
@@ -61,7 +62,6 @@ def extract_well_data(file_path):
             data_list.append({
                 'Well': well,
                 'MD': md,
-                'Amostra': amostra,
                 'Size': size_values[i] if i < len(size_values) else None,
                 'Volume': volume_values[i] if i < len(volume_values) else None
             })
@@ -112,22 +112,24 @@ def compile_well_data(input_folder, output_file='compiled_wells.csv'):
 
     try:
         with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter='|')
+            writer = csv.writer(f, delimiter='\t')
 
-            # Primeira linha: nomes das colunas com unidades
-            writer.writerow(['Well', 'MD (m)', 'Amostra', 'Size (mm)', 'Volume (%)'])
+            # Primeira linha: nomes das colunas (sem unidades)
+            writer.writerow(['Well', 'MD', 'Size', 'Volume'])
 
             # Segunda linha: unidades
-            writer.writerow(['', 'm', '', 'mm', '%'])
+            writer.writerow(['', '', 'mm', '%'])
 
             # Dados compilados
             for data in compiled_data:
+                size_val = data.get('Size')
+                volume_val = data.get('Volume')
+
                 writer.writerow([
                     data.get('Well', ''),
                     data.get('MD', ''),
-                    data.get('Amostra', ''),
-                    f"{data.get('Size', ''):.2f}" if data.get('Size') is not None else '',
-                    f"{data.get('Volume', ''):.2f}" if data.get('Volume') is not None else ''
+                    size_val if size_val is not None else '',
+                    volume_val if volume_val is not None else ''
                 ])
 
         print(f"\n✓ Dados compilados com sucesso em: {output_path.absolute()}")
