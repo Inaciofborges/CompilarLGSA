@@ -26,15 +26,40 @@ Os arquivos Excel devem conter os dados nas seguintes células:
 
 ## Uso
 
-### Sintaxe básica
+### Modo Interativo (Recomendado)
+
+#### No Linux/macOS:
+```bash
+./run.sh
+```
+
+#### No Windows:
+Duplo-clique em `run.bat`
+
+O script pedirá:
+1. **Caminho da pasta** com os arquivos Excel
+2. **Nome do arquivo de saída** (opcional, padrão: `compiled_wells.csv`)
+
+Exemplo de entrada interativa:
+```
+Digite o caminho da pasta contendo os arquivos Excel:
+./dados
+
+Digite o nome do arquivo de saída (padrão: compiled_wells.csv):
+resultado_compilado.csv
+```
+
+### Modo Linha de Comando
+
+#### Sintaxe básica
 
 ```bash
 python compile_well_data.py <pasta_entrada> [arquivo_saida.csv]
 ```
 
-### Exemplos
+#### Exemplos
 
-**Exemplo 1:** Processar arquivos da pasta `./dados` e gerar `compiled_wells.csv`
+**Exemplo 1:** Processar arquivos da pasta `./dados` com nome padrão
 
 ```bash
 python compile_well_data.py ./dados

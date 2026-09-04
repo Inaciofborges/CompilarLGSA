@@ -141,14 +141,37 @@ def compile_well_data(input_folder, output_file='compiled_wells.csv'):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Uso: python compile_well_data.py <pasta_entrada> [arquivo_saida.csv]")
-        print("\nExemplo:")
-        print("  python compile_well_data.py ./dados compiled_wells.csv")
-        sys.exit(1)
+    print("=" * 60)
+    print("Script de Compilação de Dados de Poços")
+    print("=" * 60)
 
-    input_folder = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else 'compiled_wells.csv'
+    # Se argumentos foram passados, usa modo linha de comando
+    if len(sys.argv) >= 2:
+        input_folder = sys.argv[1]
+        output_file = sys.argv[2] if len(sys.argv) > 2 else 'compiled_wells.csv'
+    else:
+        # Modo interativo
+        print("\nDigite o caminho da pasta contendo os arquivos Excel:")
+        print("(Exemplo: ./dados ou C:\\Users\\seu_usuario\\dados)")
+        input_folder = input("\nCaminho da pasta: ").strip()
+
+        if not input_folder:
+            print("\nErro: Caminho não pode estar vazio!")
+            sys.exit(1)
+
+        print("\nDigite o nome do arquivo de saída (padrão: compiled_wells.csv):")
+        output_file = input("Nome do arquivo de saída [compiled_wells.csv]: ").strip()
+
+        if not output_file:
+            output_file = 'compiled_wells.csv'
+
+        print("\n" + "=" * 60)
 
     success = compile_well_data(input_folder, output_file)
+
+    if success:
+        print("\n" + "=" * 60)
+        print("✓ Processamento concluído com sucesso!")
+        print("=" * 60)
+
     sys.exit(0 if success else 1)
