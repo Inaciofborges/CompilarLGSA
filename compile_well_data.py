@@ -89,13 +89,19 @@ def extract_well_data(file_path):
             for row_idx in range(74, 85):  # Linhas 75-85 (0-indexed: 74-84)
                 try:
                     size_val = ws.cell_value(row_idx, 0)  # Coluna A
-                    size_values.append(float(size_val) if size_val else None)
+                    if size_val != '':  # Verifica se não é string vazia
+                        size_values.append(float(size_val) if size_val else None)
+                    else:
+                        size_values.append(None)
                 except (ValueError, TypeError):
                     size_values.append(None)
 
                 try:
                     vol_val = ws.cell_value(row_idx, 5)  # Coluna F
-                    volume_values.append(float(vol_val) if vol_val else None)
+                    if vol_val != '':  # Verifica se não é string vazia
+                        volume_values.append(float(vol_val) if vol_val else None)
+                    else:
+                        volume_values.append(None)
                 except (ValueError, TypeError):
                     volume_values.append(None)
 
@@ -118,6 +124,11 @@ def extract_well_data(file_path):
 
                 vol_val = ws[f'F{row}'].value
                 volume_values.append(float(vol_val) if vol_val else None)
+
+        # Debug: Mostra o que foi extraído
+        print(f"    Well: {well}, MD: {md}, Amostra: {amostra}")
+        print(f"    Size values ({len(size_values)}): {size_values[:3]}...")
+        print(f"    Volume values ({len(volume_values)}): {volume_values[:3]}...")
 
         # Cria lista de dados com uma linha para cada amostra
         data_list = []
