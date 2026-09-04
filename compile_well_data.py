@@ -159,8 +159,8 @@ def compile_well_data(input_folder, output_file=None):
             output_file = 'compiled_wells.csv'
             print("Aviso: Não foi possível determinar o nome do poço. Usando nome padrão.", file=sys.stderr)
 
-    # Escreve no arquivo de saída
-    output_path = Path(output_file)
+    # Escreve no arquivo de saída (na mesma pasta dos arquivos de entrada)
+    output_path = input_path / output_file
 
     try:
         with open(output_path, 'w', newline='', encoding='utf-8') as f:
