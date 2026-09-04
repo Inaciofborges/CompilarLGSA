@@ -44,8 +44,9 @@ def extract_well_data(file_path):
             wb = xlrd.open_workbook(file_path)
             ws = wb.sheet_by_index(0)
 
-            # Extrai Well e MD (xlrd usa 0-indexed)
-            well = ws.cell_value(2, 0)   # A3
+            # Extrai Well, Amostra e MD (xlrd usa 0-indexed)
+            well = ws.cell_value(2, 0)    # A3
+            amostra = ws.cell_value(2, 14)  # O3
             md = ws.cell_value(3, 14)    # O4
 
             # Extrai Size (A75:A85) e Volume (F75:F85)
@@ -69,8 +70,9 @@ def extract_well_data(file_path):
             wb = load_workbook(file_path, data_only=True)
             ws = wb.active
 
-            # Extrai Well e MD
+            # Extrai Well, Amostra e MD
             well = ws['A3'].value
+            amostra = ws['O3'].value
             md = ws['O4'].value
 
             # Extrai Size (A75:A85) e Volume (F75:F85)
@@ -89,6 +91,7 @@ def extract_well_data(file_path):
             data_list.append({
                 'Well': well,
                 'MD': md,
+                'Amostra': amostra,
                 'Size': size_values[i] if i < len(size_values) else None,
                 'Volume': volume_values[i] if i < len(volume_values) else None
             })
@@ -154,10 +157,10 @@ def compile_well_data(input_folder, output_file=None):
             writer = csv.writer(f, delimiter='\t')
 
             # Primeira linha: nomes das colunas (sem unidades)
-            writer.writerow(['Well', 'MD', 'Size', 'Volume'])
+            writer.writerow(['Well', 'MD', 'Amostra', 'Size', 'Volume'])
 
             # Segunda linha: unidades
-            writer.writerow(['', '', 'mm', '%'])
+            writer.writerow(['', '', '', 'mm', '%'])
 
             # Dados compilados
             for data in compiled_data:
@@ -167,6 +170,7 @@ def compile_well_data(input_folder, output_file=None):
                 writer.writerow([
                     data.get('Well', ''),
                     data.get('MD', ''),
+                    data.get('Amostra', ''),
                     size_val if size_val is not None else '',
                     volume_val if volume_val is not None else ''
                 ])

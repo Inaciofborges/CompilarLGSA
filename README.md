@@ -35,6 +35,7 @@ Os arquivos Excel devem conter os dados nas seguintes células:
 |-------|--------|
 | Well | A3 |
 | MD (Measured Depth) | O4 |
+| Amostra | O3 |
 | Size | A75 a A85 (10 valores individuais) |
 | Volume | F75 a F85 (10 valores individuais) |
 
@@ -100,22 +101,22 @@ python compile_well_data.py ./dados meu_resultado.csv
 O arquivo de saída será um arquivo TAB-delimited com o seguinte formato:
 
 ```
-Well	MD	Size	Volume
-		mm	%
-WELL-003	2431.05	2	0
-WELL-003	2431.05	1.681793	4.050356
-WELL-003	2431.05	0.840896	12.658058
-WELL-003	2431.05	0.420448	13.395099
+Well	MD	Amostra	Size	Volume
+			mm	%
+WELL-003	2431.05	Sample-A1	2	0
+WELL-003	2431.05	Sample-A1	1.681793	4.050356
+WELL-003	2431.05	Sample-A1	0.840896	12.658058
+WELL-003	2431.05	Sample-A1	0.420448	13.395099
 ...
-WELL-003	2431.05	0.003285	4.903475
-WELL-004	2431.05	2	0
-WELL-004	2431.05	1.681793	4.050356
+WELL-003	2431.05	Sample-A1	0.003285	4.903475
+WELL-004	2431.05	Sample-B1	2	0
+WELL-004	2431.05	Sample-B1	1.681793	4.050356
 ...
 ```
 
 **Estrutura:**
-- **Linha 1**: Nomes das colunas (Well, MD, Size, Volume) - sem unidades
-- **Linha 2**: Unidades (vazio, vazio, mm, %)
+- **Linha 1**: Nomes das colunas (Well, MD, Amostra, Size, Volume) - sem unidades
+- **Linha 2**: Unidades (vazio, vazio, vazio, mm, %)
 - **Linhas 3+**: Dados dos poços (cada poço terá 10 linhas de dados)
 
 **Unidades:**
