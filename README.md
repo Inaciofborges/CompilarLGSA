@@ -7,10 +7,23 @@ Este script processa arquivos Excel de poços e compila as informações em um a
 - Python 3.7+
 - Biblioteca `openpyxl` para leitura de arquivos Excel
 
-### Instalação das dependências
+## 🚀 Instalação Rápida
 
+### Windows:
+1. Duplo-clique em `setup.bat`
+2. Aguarde a instalação das dependências
+3. Duplo-clique em `run.bat` para usar o script
+
+### Linux/macOS:
 ```bash
-pip install openpyxl
+chmod +x setup.sh
+./setup.sh
+./run.sh
+```
+
+### Instalação Manual (opcional):
+```bash
+pip install -r requirements.txt
 ```
 
 ## Estrutura esperada dos arquivos de entrada
