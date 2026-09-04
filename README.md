@@ -36,39 +36,41 @@ Os arquivos Excel devem conter os dados nas seguintes células:
 #### No Windows:
 Duplo-clique em `run.bat`
 
-O script pedirá:
-1. **Caminho da pasta** com os arquivos Excel
-2. **Nome do arquivo de saída** (opcional, padrão: `compiled_wells.csv`)
+O script pedirá apenas:
+- **Caminho da pasta** com os arquivos Excel
+
+O arquivo de saída será nomeado automaticamente como: **{Nome_do_Poço}_LGSA.csv**
 
 Exemplo de entrada interativa:
 ```
 Digite o caminho da pasta contendo os arquivos Excel:
 ./dados
-
-Digite o nome do arquivo de saída (padrão: compiled_wells.csv):
-resultado_compilado.csv
 ```
+
+**Resultado:** Arquivo `WELL-003_LGSA.csv` gerado automaticamente!
 
 ### Modo Linha de Comando
 
 #### Sintaxe básica
 
 ```bash
-python compile_well_data.py <pasta_entrada> [arquivo_saida.csv]
+python compile_well_data.py <pasta_entrada> [arquivo_saida_personalizado.csv]
 ```
 
 #### Exemplos
 
-**Exemplo 1:** Processar arquivos da pasta `./dados` com nome padrão
+**Exemplo 1:** Processar arquivos da pasta `./dados` (nome gerado automaticamente)
 
 ```bash
 python compile_well_data.py ./dados
 ```
 
-**Exemplo 2:** Especificar nome do arquivo de saída
+Resultado: `WELL-003_LGSA.csv`
+
+**Exemplo 2:** Especificar nome do arquivo de saída personalizado
 
 ```bash
-python compile_well_data.py ./dados resultado_compilado.csv
+python compile_well_data.py ./dados meu_resultado.csv
 ```
 
 ## Formato de saída

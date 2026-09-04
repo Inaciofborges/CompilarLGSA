@@ -73,7 +73,7 @@ def extract_well_data(file_path):
         return None
 
 
-def compile_well_data(input_folder, output_file='compiled_wells.csv'):
+def compile_well_data(input_folder, output_file=None):
     """
     Processa todos os arquivos Excel de uma pasta e compila os dados.
 
@@ -95,6 +95,7 @@ def compile_well_data(input_folder, output_file='compiled_wells.csv'):
         return False
 
     compiled_data = []
+    well_name = None
 
     print(f"Processando {len(excel_files)} arquivo(s)...")
     for excel_file in excel_files:
@@ -102,10 +103,21 @@ def compile_well_data(input_folder, output_file='compiled_wells.csv'):
         well_data = extract_well_data(str(excel_file))
         if well_data:
             compiled_data.extend(well_data)
+            # Extrai o nome do poço da primeira entrada
+            if well_name is None and well_data[0].get('Well'):
+                well_name = well_data[0].get('Well')
 
     if not compiled_data:
         print("Nenhum dado foi extraído.", file=sys.stderr)
         return False
+
+    # Gera o nome do arquivo se não foi fornecido
+    if output_file is None:
+        if well_name:
+            output_file = f"{well_name}_LGSA.csv"
+        else:
+            output_file = 'compiled_wells.csv'
+            print("Aviso: Não foi possível determinar o nome do poço. Usando nome padrão.", file=sys.stderr)
 
     # Escreve no arquivo de saída
     output_path = Path(output_file)
@@ -148,7 +160,7 @@ if __name__ == '__main__':
     # Se argumentos foram passados, usa modo linha de comando
     if len(sys.argv) >= 2:
         input_folder = sys.argv[1]
-        output_file = sys.argv[2] if len(sys.argv) > 2 else 'compiled_wells.csv'
+        output_file = sys.argv[2] if len(sys.argv) > 2 else None
     else:
         # Modo interativo
         print("\nDigite o caminho da pasta contendo os arquivos Excel:")
@@ -159,12 +171,7 @@ if __name__ == '__main__':
             print("\nErro: Caminho não pode estar vazio!")
             sys.exit(1)
 
-        print("\nDigite o nome do arquivo de saída (padrão: compiled_wells.csv):")
-        output_file = input("Nome do arquivo de saída [compiled_wells.csv]: ").strip()
-
-        if not output_file:
-            output_file = 'compiled_wells.csv'
-
+        output_file = None
         print("\n" + "=" * 60)
 
     success = compile_well_data(input_folder, output_file)
