@@ -101,28 +101,46 @@ python compile_well_data.py ./dados meu_resultado.csv
 O arquivo de saída será um arquivo TAB-delimited com o seguinte formato:
 
 ```
-Well	MD	Amostra	Size	Volume
-			mm	%
-WELL-003	2431.05	Sample-A1	2	0
-WELL-003	2431.05	Sample-A1	1.681793	4.050356
-WELL-003	2431.05	Sample-A1	0.840896	12.658058
-WELL-003	2431.05	Sample-A1	0.420448	13.395099
+Well	MD	Amostra	Size Class	Size	Volume
+				mm	%
+WELL-003	2431.05	Sample-A1	Granule	2	0
+WELL-003	2431.05	Sample-A1	Very Coarse Sand	1.681793	4.050356
+WELL-003	2431.05	Sample-A1	Coarse Sand	0.840896	12.658058
+WELL-003	2431.05	Sample-A1	Medium Sand	0.420448	13.395099
 ...
-WELL-003	2431.05	Sample-A1	0.003285	4.903475
-WELL-004	2431.05	Sample-B1	2	0
-WELL-004	2431.05	Sample-B1	1.681793	4.050356
+WELL-003	2431.05	Sample-A1	Clay	0.003285	4.903475
+WELL-004	2431.05	Sample-B1	Granule	2	0
+WELL-004	2431.05	Sample-B1	Very Coarse Sand	1.681793	4.050356
 ...
 ```
 
 **Estrutura:**
-- **Linha 1**: Nomes das colunas (Well, MD, Amostra, Size, Volume) - sem unidades
-- **Linha 2**: Unidades (vazio, vazio, vazio, mm, %)
+- **Linha 1**: Nomes das colunas (Well, MD, Amostra, Size Class, Size, Volume) - sem unidades
+- **Linha 2**: Unidades (vazio, vazio, vazio, vazio, mm, %)
 - **Linhas 3+**: Dados dos poços (cada poço terá 10 linhas de dados)
 
 **Unidades:**
 - **MD**: metros (m) - sem unidade no cabeçalho
 - **Size**: milímetros (mm)
 - **Volume**: percentual (%)
+
+## Classificação de Tamanho (Escala de Wentworth)
+
+A coluna "Size Class" classifica automaticamente o tamanho das partículas:
+
+| Size Class | Intervalo (mm) |
+|------------|----------------|
+| Granule | ≥ 2.0 |
+| Very Coarse Sand | 1.682 - 2.0 |
+| Coarse Sand | 0.841 - 1.682 |
+| Medium Sand | 0.42 - 0.841 |
+| Fine Sand | 0.21 - 0.42 |
+| Very Fine Sand | 0.105 - 0.21 |
+| Coarse Silt | 0.053 - 0.105 |
+| Medium Silt | 0.026 - 0.053 |
+| Fine Silt | 0.013 - 0.026 |
+| Very Fine Silt | 0.007 - 0.013 |
+| Clay | < 0.007 |
 
 ## Funcionalidades
 

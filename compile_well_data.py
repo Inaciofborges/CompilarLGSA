@@ -20,6 +20,40 @@ try:
 except ImportError:
     HAS_XLRD = False
 
+# Tabela de classificação de tamanho de partículas (escala de Wentworth)
+SIZE_CLASSES = [
+    (2.0, "Granule"),
+    (1.682, "Very Coarse Sand"),
+    (0.841, "Coarse Sand"),
+    (0.42, "Medium Sand"),
+    (0.21, "Fine Sand"),
+    (0.105, "Very Fine Sand"),
+    (0.053, "Coarse Silt"),
+    (0.026, "Medium Silt"),
+    (0.013, "Fine Silt"),
+    (0.007, "Very Fine Silt"),
+    (0.0, "Clay")
+]
+
+def classify_size(size_value):
+    """
+    Classifica o tamanho da partícula baseado na escala de Wentworth.
+
+    Args:
+        size_value: Valor do tamanho em mm
+
+    Returns:
+        str: Classificação do tamanho (ex: "Medium Sand")
+    """
+    if size_value is None:
+        return ""
+
+    for threshold, class_name in SIZE_CLASSES:
+        if size_value >= threshold:
+            return class_name
+
+    return "Clay"
+
 
 def extract_well_data(file_path):
     """
@@ -88,11 +122,13 @@ def extract_well_data(file_path):
         # Cria lista de dados com uma linha para cada amostra
         data_list = []
         for i in range(max(len(size_values), len(volume_values))):
+            size_val = size_values[i] if i < len(size_values) else None
             data_list.append({
                 'Well': well,
                 'MD': md,
                 'Amostra': amostra,
-                'Size': size_values[i] if i < len(size_values) else None,
+                'Size Class': classify_size(size_val),
+                'Size': size_val,
                 'Volume': volume_values[i] if i < len(volume_values) else None
             })
 
@@ -157,10 +193,10 @@ def compile_well_data(input_folder, output_file=None):
             writer = csv.writer(f, delimiter='\t')
 
             # Primeira linha: nomes das colunas (sem unidades)
-            writer.writerow(['Well', 'MD', 'Amostra', 'Size', 'Volume'])
+            writer.writerow(['Well', 'MD', 'Amostra', 'Size Class', 'Size', 'Volume'])
 
             # Segunda linha: unidades
-            writer.writerow(['', '', '', 'mm', '%'])
+            writer.writerow(['', '', '', '', 'mm', '%'])
 
             # Dados compilados
             for data in compiled_data:
@@ -171,6 +207,7 @@ def compile_well_data(input_folder, output_file=None):
                     data.get('Well', ''),
                     data.get('MD', ''),
                     data.get('Amostra', ''),
+                    data.get('Size Class', ''),
                     size_val if size_val is not None else '',
                     volume_val if volume_val is not None else ''
                 ])
