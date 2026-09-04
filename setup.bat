@@ -7,8 +7,8 @@ echo Instalando dependencias do projeto...
 echo ============================================================
 echo.
 
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --upgrade pip --user
+python -m pip install -r requirements.txt --user
 
 echo.
 echo ============================================================
