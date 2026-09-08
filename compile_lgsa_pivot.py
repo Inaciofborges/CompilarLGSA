@@ -25,7 +25,8 @@ except ImportError:
 def abbreviate_grain_name(name):
     """
     Abrevia nomes de grãos mantendo primeira letra de cada palavra (exceto última).
-    Exemplo: "Very Fine Sand" -> "Vf Sand"
+    Adiciona 'g' após o adjetivo para colunas Sand.
+    Exemplo: "Very Fine Sand" -> "Vfg Sand"
     """
     if not name:
         return ''
@@ -41,8 +42,13 @@ def abbreviate_grain_name(name):
         else:
             abbreviated.append(word[0].lower())
 
-    abbreviated.append(words[-1])
-    return ' '.join(abbreviated)
+    # Concatena as letras e adiciona 'g' se for Sand
+    abbrev_str = ''.join(abbreviated)
+    if words[-1].lower() == 'sand':
+        abbrev_str += 'g'
+
+    abbreviated_final = [abbrev_str, words[-1]]
+    return ' '.join(abbreviated_final)
 
 
 def extract_well_data(file_path):
