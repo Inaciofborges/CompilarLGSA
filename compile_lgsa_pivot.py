@@ -221,9 +221,7 @@ def compile_well_data(input_folder, output_file=None):
             writer = csv.writer(f, delimiter='\t')
 
             # Monta header com nomes das colunas
-            header = ['Well', 'MD', 'Amostra']
-            for i in range(1, 38):  # 37 colunas Size
-                header.append('Size')
+            header = ['Well', 'MD', 'Amostra', 'Size']
             # Adiciona nomes das colunas de A75:A85 (abreviados)
             abbreviated_names = []
             if column_names:
@@ -233,34 +231,31 @@ def compile_well_data(input_folder, output_file=None):
             writer.writerow(header)
 
             # Monta linha de unidades
-            units_row = ['', 'm', '']
-            # Adiciona "mm" para cada coluna Size
-            for i in range(1, 38):
-                units_row.append('mm')
+            units_row = ['', 'm', '', 'mm']
             # Adiciona "%" para colunas de dados
             for _ in abbreviated_names:
                 units_row.append('%')
             writer.writerow(units_row)
 
-            # Dados compilados (uma linha por amostra)
+            # Dados compilados (múltiplas linhas por amostra)
             for data in compiled_data:
-                row = [
-                    data.get('Well', ''),
-                    data.get('MD', ''),
-                    data.get('Amostra', '')
-                ]
-
-                # Adiciona valores de Size
                 size_vals = data.get('Size', [])
-                for size_val in size_vals:
-                    row.append(size_val if size_val is not None else '')
-
-                # Adiciona valores de F75:F85
                 values = data.get('Values', [])
-                for val in values:
-                    row.append(val if val is not None else '')
 
-                writer.writerow(row)
+                # Uma linha para cada valor de Size
+                for i, size_val in enumerate(size_vals):
+                    row = [
+                        data.get('Well', ''),
+                        data.get('MD', ''),
+                        data.get('Amostra', ''),
+                        size_val if size_val is not None else ''
+                    ]
+
+                    # Adiciona valores de F75:F85
+                    for val in values:
+                        row.append(val if val is not None else '')
+
+                    writer.writerow(row)
 
         print(f"\n✓ Dados compilados com sucesso em: {output_path.absolute()}")
         return True
