@@ -22,6 +22,29 @@ except ImportError:
     HAS_XLRD = False
 
 
+def abbreviate_grain_name(name):
+    """
+    Abrevia nomes de grãos mantendo primeira letra de cada palavra (exceto última).
+    Exemplo: "Very Fine Sand" -> "Vf Sand"
+    """
+    if not name:
+        return ''
+
+    words = name.split()
+    if len(words) <= 1:
+        return name
+
+    abbreviated = []
+    for i, word in enumerate(words[:-1]):
+        if i == 0:
+            abbreviated.append(word[0].upper())
+        else:
+            abbreviated.append(word[0].lower())
+
+    abbreviated.append(words[-1])
+    return ' '.join(abbreviated)
+
+
 def extract_well_data(file_path):
     """
     Extrai dados de um arquivo Excel (.xlsx ou .xls).
@@ -195,10 +218,23 @@ def compile_well_data(input_folder, output_file=None):
             header = ['Well', 'MD', 'Amostra']
             for i in range(1, 38):  # Size[1] a Size[37]
                 header.append(f'Size[{i}]')
-            # Adiciona nomes das colunas de A75:A85
+            # Adiciona nomes das colunas de A75:A85 (abreviados)
+            abbreviated_names = []
             if column_names:
-                header.extend(column_names)
+                for name in column_names:
+                    abbreviated_names.append(abbreviate_grain_name(name))
+                header.extend(abbreviated_names)
             writer.writerow(header)
+
+            # Monta linha de unidades
+            units_row = ['', 'm', '']
+            # Adiciona "mm" para cada coluna Size
+            for i in range(1, 38):
+                units_row.append('mm')
+            # Adiciona "%" para colunas de dados
+            for _ in abbreviated_names:
+                units_row.append('%')
+            writer.writerow(units_row)
 
             # Dados compilados (uma linha por amostra)
             for data in compiled_data:
