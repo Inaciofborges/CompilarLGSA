@@ -50,19 +50,11 @@ def extract_well_data(file_path):
             amostra = ws.cell_value(2, 14)  # O3
             md = ws.cell_value(3, 14)    # O4
 
-            # Extrai Size (K35, depois C71:C35 decrescente)
+            # Extrai Size (F71:F35 em ordem decrescente)
             size_values = []
-            # Adiciona K35 primeiro
-            try:
-                k35_val = ws.cell_value(34, 10)  # K35
-                size_values.append(float(k35_val) if k35_val else None)
-            except (ValueError, TypeError):
-                size_values.append(None)
-
-            # Depois C71:C35 em ordem decrescente
-            for row_idx in range(70, 33, -1):
+            for row_idx in range(70, 33, -1):  # F71:F35 (0-indexed: 70 até 34)
                 try:
-                    size_val = ws.cell_value(row_idx, 2)  # Coluna C
+                    size_val = ws.cell_value(row_idx, 5)  # Coluna F
                     size_values.append(float(size_val) if size_val else None)
                 except (ValueError, TypeError):
                     size_values.append(None)
@@ -95,19 +87,11 @@ def extract_well_data(file_path):
             amostra = ws['O3'].value
             md = ws['O4'].value
 
-            # Extrai Size (K35, depois C71:C35 decrescente)
+            # Extrai Size (F71:F35 em ordem decrescente)
             size_values = []
-            # Adiciona K35 primeiro
-            try:
-                k35_val = ws['K35'].value
-                size_values.append(float(k35_val) if k35_val else None)
-            except (ValueError, TypeError):
-                size_values.append(None)
-
-            # Depois C71:C35 em ordem decrescente
-            for row in range(71, 34, -1):
+            for row in range(71, 34, -1):  # F71:F35
                 try:
-                    size_val = ws[f'C{row}'].value
+                    size_val = ws[f'F{row}'].value
                     size_values.append(float(size_val) if size_val else None)
                 except (ValueError, TypeError):
                     size_values.append(None)
@@ -209,7 +193,7 @@ def compile_well_data(input_folder, output_file=None):
 
             # Monta header com nomes das colunas
             header = ['Well', 'MD', 'Amostra']
-            for i in range(1, 39):  # Size[1] a Size[38]
+            for i in range(1, 38):  # Size[1] a Size[37]
                 header.append(f'Size[{i}]')
             # Adiciona nomes das colunas de A75:A85
             if column_names:
