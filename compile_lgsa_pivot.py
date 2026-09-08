@@ -222,8 +222,8 @@ def compile_well_data(input_folder, output_file=None):
 
             # Monta header com nomes das colunas
             header = ['Well', 'MD', 'Amostra']
-            for i in range(1, 38):  # Size[1] a Size[37]
-                header.append(f'Size[{i}]')
+            for i in range(1, 38):  # 37 colunas Size
+                header.append('Size')
             # Adiciona nomes das colunas de A75:A85 (abreviados)
             abbreviated_names = []
             if column_names:
